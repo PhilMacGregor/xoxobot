@@ -93,6 +93,8 @@ public class Hra {
 		
 		if (hrac == aiColor) {
 			ai.turn();
+		} else {
+			ai.opponentPlayed(souradX, souradY);
 		}
 	}
 
@@ -192,8 +194,12 @@ public class Hra {
 
 		@Override
 		public Player getFieldAt(int x, int y) {
+			if (x < 0 || y < 0 || x >= naKolik || y >= naKolik) {
+				return Player.WALL;
+			}
+			
 			Entity ent = sourad[x][y];
-			if (ent == Entity.NIKDO) {
+			if (ent == null || ent == Entity.NIKDO) {
 				return Player.NONE;
 			} else {
 				return ent == aiColor ? Player.ME : Player.ENEMY;

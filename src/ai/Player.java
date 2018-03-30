@@ -1,5 +1,5 @@
 package ai;
 
 public enum Player {
-	ME, ENEMY, NONE;
+	ME, ENEMY, NONE, WALL;
 }
