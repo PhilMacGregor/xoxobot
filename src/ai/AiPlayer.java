@@ -1,10 +1,8 @@
 package ai;
 
 import java.awt.Dimension;
-import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -14,8 +12,8 @@ public class AiPlayer {
 
 	private MapResolver mapResolver;
 	
-	private double[][] dangers;
-	private double[][] opportunities;
+	private Double[][] dangers;
+	private Double[][] opportunities;
 	
 	private Collection<Point> occupiedPoints;
 	private Collection<Point> freePoints;
@@ -42,10 +40,31 @@ public class AiPlayer {
 		this.mapResolver = mapResolver;
 	}
 
-	public void turn() {
+	public Point turn() {
 		if (firstTurn) {
 			init();
 		}
+
+		for (Point point : freePoints) {
+			if (mapResolver.getFieldAt(point.x, point.y) != Player.NONE) {
+				occupyPoint(point.x, point.y);
+				continue;
+			}
+			
+			dangers[point.x][point.y] = countDanger(point);
+			opportunities[point.x][point.y] = countOpportunity(point);
+		}
+
+		Util.debugMap(dangers);
+		
+		Map<Double, Point> dangerMap = new TreeMap<>();
+		for (Point pt : freePoints) {
+			dangerMap.put(dangers[pt.x][pt.y], pt);
+		}
+		
+		Double maxDanger = dangerMap.keySet().toArray(new Double[dangerMap.keySet().size()])[dangerMap.keySet().size() - 1];
+		return (dangerMap.get(maxDanger));
+		
 	}
 
 	public void opponentPlayed(int x, int y) {
@@ -71,12 +90,12 @@ public class AiPlayer {
 			}
 		}
 		
-		dangers = new double[maxX + 1][maxY + 1];
-		opportunities = new double[maxX + 1][maxY + 1];
+		dangers = new Double[maxX + 1][maxY + 1];
+		opportunities = new Double[maxX + 1][maxY + 1];
 		
-		for (Point point : allPoints) {
-			countDanger(point);
-			countOpportunity(point);
+		for (Point pt : allPoints) {
+			dangers[pt.x][pt.y] = 0.0;
+			opportunities[pt.x][pt.y] = 0.0;
 		}
 		
 		firstTurn = false;
@@ -107,24 +126,33 @@ public class AiPlayer {
 		
 	}
 	
-	private void countOpportunity(Point point) {
+	private double countOpportunity(Point point) {
 		double opportunity = 0;
 		
 		for (Point v : vectors) {
 			Map<Integer, Player> players = lookupDirection(point, v);
 		}
 		
-		opportunities[point.x][point.y] = opportunity;
+		return opportunity;
 	}
 
-	private void countDanger(Point point) {
+	private double countDanger(Point point) {
 		double danger = 0;
 		
 		for (Point v : vectors) {
 			Map<Integer, Player> players = lookupDirection(point, v);
+			
+			List<String> pts = new ArrayList<>();
+			List<String> plys = new ArrayList<>();
+			
+			for (Player p : players.values()) {
+				if (p == Player.ENEMY) {
+					danger++;
+				}
+			}
 		}
 		
-		dangers[point.x][point.y] = danger;
+		return danger;
 	}
 	
 	private Map<Integer, Player> lookupDirection(Point origin, Point vector) {
@@ -136,7 +164,7 @@ public class AiPlayer {
 		int index = 1;
 		
 		while (direction != 0) {
-			Point cursor = addPoint(origin, multiplyPoint(vector, direction * index));
+			Point cursor = origin.addPoint(vector.multiplyPoint(direction * index));
 			Player p = mapResolver.getFieldAt(cursor.x, cursor.y);
 			
 			if (p == Player.WALL) {
@@ -150,14 +178,6 @@ public class AiPlayer {
 		}
 		
 		return points;
-	}
-	
-	private Point multiplyPoint(Point pt, int multiplier) {
-		return new Point(pt.x * multiplier, pt.y * multiplier);
-	}
-	
-	private Point addPoint(Point pt, Point add) {
-		return new Point(pt.x + add.x, pt.y + add.y);
 	}
 	
 }

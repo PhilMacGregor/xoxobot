@@ -19,6 +19,7 @@ import javax.swing.JOptionPane;
 import ai.AiPlayer;
 import ai.MapResolver;
 import ai.Player;
+import ai.Point;
 import grafika.Gui;
 
 /**
@@ -32,6 +33,9 @@ public class Hra {
 	private int volnaPole;
 	private final ImageIcon remiza, modry, cerveny;
 	private final int naKolik;
+	
+	private final int sizeX;
+	private final int sizeY;
 
 	private Entity aiColor;
 	private AiPlayer ai;
@@ -44,6 +48,9 @@ public class Hra {
 		this.aiColor = Entity.CERVENY;
 
 		int y = x;
+		
+		this.sizeX = x;
+		this.sizeY = y;
 
 		if (x == 3)
 			naKolik = 3;
@@ -92,7 +99,9 @@ public class Hra {
 		grafika.kdoHraje();
 		
 		if (hrac == aiColor) {
-			ai.turn();
+			Point aiPlay = ai.turn();
+			grafika.getPole(aiPlay.x, aiPlay.y).getActionListeners()[0].actionPerformed(null);
+			
 		} else {
 			ai.opponentPlayed(souradX, souradY);
 		}
@@ -194,7 +203,7 @@ public class Hra {
 
 		@Override
 		public Player getFieldAt(int x, int y) {
-			if (x < 0 || y < 0 || x >= naKolik || y >= naKolik) {
+			if (x < 0 || y < 0 || x >= sizeX || y >= sizeY) {
 				return Player.WALL;
 			}
 			

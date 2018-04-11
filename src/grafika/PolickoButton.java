@@ -38,6 +38,8 @@ public class PolickoButton extends JButton {
 			else
 				hrac = MODRY;
 			if (obsad(hrac))
+				System.out.printf("Tahne %s: [%d, %d]\n", hrac, souradX, souradY);
+				
 				hra.tah(souradX, souradY);
 		}
 	}

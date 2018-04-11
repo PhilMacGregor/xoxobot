@@ -36,6 +36,8 @@ public class Gui {
 	private final JMenuItem		newGameMenuItem;
 	private final JMenuItem		konecMenuItem;
 	private final Hra					hra;
+	
+	private PolickoButton[][] pole;
 
 	public Gui(int vyska, int sirka, Hra hra) {
 		this.hra = hra;
@@ -80,14 +82,22 @@ public class Gui {
 
 		kdoHraje();
 
+		pole = new PolickoButton[sirka][vyska];
+		
 		for (int i = 0; i < vyska; i++) {
 			for (int j = 0; j < sirka; j++) {
-				plochaPanel.add(new PolickoButton(i, j, hra));
+				PolickoButton button = new PolickoButton(i, j, hra);
+				plochaPanel.add(button);
+				pole[i][j] = button;
 			}
 		}
 
 		oknoFrame.add(plochaPanel);
 		oknoFrame.add(spodniPanel, BorderLayout.SOUTH);
+	}
+	
+	public PolickoButton getPole(int x, int y) {
+		return pole[x][y];
 	}
 
 	public void kdoHraje() {
